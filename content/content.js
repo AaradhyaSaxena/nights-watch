@@ -9,6 +9,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function returnMaskedContent(originalContent) {
+    // chrome.runtime.sendMessage({ 
+    //     action: 'geminiCall', 
+    //     content: originalContent 
+    // });
+    // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    //     if (message.action === 'geminiResponse') {
+    //       console.log("content", message.content);
+    //       return message.content;
+    //     }
+    //   });
     await console.log("masking content", originalContent);
     return "masked content";
 }

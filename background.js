@@ -15,18 +15,6 @@ function setupTabListener() {
   });
 }
 
-function handleTabUpdate(tabId, tab) {
-  const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
-  if (isSupportedSite) {
-    debugLog("Detected AI chat tab - Night's Watch is active >>> background.js");
-    chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
-  }
-}
-
-function debugLog(...args) {
-  console.log(...args);
-}
-
 // Load config and initialize
 fetch(chrome.runtime.getURL('config/sites.json'))
   .then(response => response.json())
@@ -62,3 +50,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("content >>> background.js", content);
   }
 });
+
+
+///////////////////////////////////////
+//////////// core methods /////////////////
+///////////////////////////////////////
+
+function handleTabUpdate(tabId, tab) {
+  const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
+  if (isSupportedSite) {
+    debugLog("Detected AI chat tab - Night's Watch is active >>> background.js");
+    chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
+  }
+}
+
+
+///////////////////// utils //////////////////////  
+
+function debugLog(...args) {
+  console.log(...args);
+}
+
