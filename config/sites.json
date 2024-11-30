@@ -1,0 +1,9 @@
+{
+  "supportedSites": [
+    "chat.openai.com",
+    "chatgpt.com",
+    "claude.ai",
+    "bard.google.com",
+    "poe.com"
+  ]
+}
