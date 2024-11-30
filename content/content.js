@@ -1,9 +1,6 @@
-console.log("Hello World from Night's Watch! >> content.js");
+console.log("Hello World from Night's Watch >>> content.js");
 
-import ClipboardManager from './ClipboardManager.js';
-const clipboardManager = new ClipboardManager();
 
-// Listen for messages from background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'startMonitoring') {
     console.log("startMonitoring >>> content.js");
@@ -12,15 +9,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function setupClipboardMonitoring() {
-  document.addEventListener('copy', async () => {
-    const content = await clipboardManager.readClipboard();
-    if (content && clipboardManager.hasContentChanged(content)) {
-      // Send the content back to background script if needed
-      console.log("clipboardUpdate >>> content.js");
-      chrome.runtime.sendMessage({ 
-        action: 'clipboardUpdate', 
-        content: content 
-      });
+  console.log("setupClipboardMonitoring >>> content.js");
+  document.addEventListener('paste', async (event) => {
+    event.preventDefault(); 
+    try {
+      const content = await navigator.clipboard.readText();
+      if (content && content.trim()) {
+        console.log("Clipboard content before paste >>> content.js:", content);
+        chrome.runtime.sendMessage({ 
+          action: 'clipboardUpdate', 
+          content: content 
+        });
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+          event.target.value += "content masked"; 
+          console.log("content masked >>> content.js");
+        }
+      } else {
+        console.log("Clipboard is empty");
+      }
+    } catch (error) {
+      console.error("Error reading clipboard:", error);
     }
   });
 } 

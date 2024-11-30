@@ -35,3 +35,10 @@ fetch(chrome.runtime.getURL('config/sites.json'))
     supportedSites = config.supportedSites;
     setupTabListener();
   });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'clipboardUpdate') {
+    const content = message.content;
+    console.log("content >>> background.js", content);
+  }
+});
