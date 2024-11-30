@@ -8,8 +8,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+async function returnMaskedContent(originalContent) {
+    await console.log("masking content", originalContent);
+    return "masked content";
+}
 
-///// masks after paste
+
 async function setupClipboardMonitoring() {
   console.log("setupClipboardMonitoring >>> content.js");
   const content = await navigator.clipboard.readText();
@@ -19,27 +23,10 @@ async function setupClipboardMonitoring() {
       action: 'clipboardUpdate', 
       content: content 
     });
-    await navigator.clipboard.writeText("masked content");
-    console.log("Event target type >>> 1st if content.js:", content);
+    const maskedContent = await returnMaskedContent(content);
+    await navigator.clipboard.writeText(maskedContent);
+    console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
   } else {
     console.log("Clipboard is empty");
   }
-  document.addEventListener('paste', async (event) => {
-    event.preventDefault();  // not working
-    try {
-      const content = await navigator.clipboard.readText();
-      if (content && content.trim()) {
-        console.log("Clipboard content before paste >>> content.js:", content);
-        chrome.runtime.sendMessage({ 
-          action: 'clipboardUpdate', 
-          content: content 
-        });
-        console.log("Event target type >>> content.js:", event.target.value);
-      } else {
-        console.log("Clipboard is empty");
-      }
-    } catch (error) {
-      console.error("Error reading clipboard:", error);
-    }
-  });
 } 
