@@ -1,38 +1,27 @@
-import ClipboardManager from '../utils/ClipboardManager.js';
-
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("Night's Watch extension installed");
+    console.log("Night's Watch extension installed >>> background.js");
 });
 
 let supportedSites = []; 
-const clipboardManager = new ClipboardManager();
 
 
 // Function to set up the tab listener
 function setupTabListener() {
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url) {
-      handleTabUpdate(tab);
+      handleTabUpdate(tabId, tab);
     }
   });
 }
 
-function handleTabUpdate(tab) {
+function handleTabUpdate(tabId, tab) {
   const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
   
   if (isSupportedSite) {
-    debugLog("Detected AI chat tab - Night's Watch is active");
-    setupClipboardMonitoring();
+    debugLog("Detected AI chat tab - Night's Watch is active >>> background.js");
+    // Instead of directly setting up monitoring, inject content script
+    chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
   }
-}
-
-function setupClipboardMonitoring() {
-  document.addEventListener('copy', async () => {
-    const content = await clipboardManager.readClipboard();
-    if (clipboardManager.hasContentChanged(content)) {
-      debugLog('New clipboard content:', content);
-    }
-  });
 }
 
 function debugLog(...args) {
