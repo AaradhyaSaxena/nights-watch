@@ -1,11 +1,12 @@
+///////////////////////////////////////
+//////// initial setup /////////
+///////////////////////////////////////
+
 chrome.runtime.onInstalled.addListener(() => {
     console.log("Night's Watch extension installed >>> background.js");
 });
-
 let supportedSites = []; 
 
-
-// Function to set up the tab listener
 function setupTabListener() {
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === 'complete' && tab.url) {
@@ -16,10 +17,8 @@ function setupTabListener() {
 
 function handleTabUpdate(tabId, tab) {
   const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
-  
   if (isSupportedSite) {
     debugLog("Detected AI chat tab - Night's Watch is active >>> background.js");
-    // Instead of directly setting up monitoring, inject content script
     chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
   }
 }
@@ -35,6 +34,27 @@ fetch(chrome.runtime.getURL('config/sites.json'))
     supportedSites = config.supportedSites;
     setupTabListener();
   });
+
+///////////////////////////////////////
+////////////// tab update /////////////  
+/////////////////////////////////////// 
+
+chrome.tabs.onActivated.addListener(activeInfo => {
+  chrome.tabs.get(activeInfo.tabId, tab => {
+    const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
+    if (isSupportedSite) {
+      handleTabUpdate(activeInfo.tabId, tab);
+    }
+  });
+});
+
+
+
+
+
+///////////////////////////////////////
+/////////// clipboard update ///////////
+/////////////////////////////////////// 
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'clipboardUpdate') {
