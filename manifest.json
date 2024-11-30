@@ -5,23 +5,29 @@
   "version": "1.0",
   "description": "The shield that guards the clipboard of men",
   "permissions": [
-    "clipboardRead",
-    "clipboardWrite",
     "storage",
     "tabs"
   ],
   "host_permissions": [
     "https://chat.openai.com/*",
-    "https://chatgpt.com/*"
+    "https://chatgpt.com/*",
+    "*://*.openai.com/*"
   ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "content_scripts": [{
-    "matches": ["https://chatgpt.com/*"],
-    "js": ["content/content.js"],
-    "run_at": "document_idle"
+    "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*",
+        "*://*.openai.com/*"
+    ],
+    "js": [
+        "content/TextAreaManager.js",
+        "content/content.js"
+    ],
+    "run_at": "document_start"
   }],
   "action": {
     "default_popup": "popup/popup.html"
