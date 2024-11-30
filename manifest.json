@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Nights Watch",
+  "author": "Aaradhya Saxena, Sundariya angry man (ignores friends)",
+  "version": "1.0",
+  "description": "The shield that guards the clipboard of men/women",
+  "permissions": [
+    "clipboardRead",
+    "clipboardWrite",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://chat.openai.com/*"
+  ],
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  "content_scripts": [{
+    "matches": ["*"],
+    "js": ["content/content.js"],
+    "run_at": "document_idle"
+  }],
+  "action": {
+    "default_popup": "popup/popup.html"
+  }
+}
