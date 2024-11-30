@@ -3,7 +3,7 @@
   "name": "Nights Watch",
   "author": "Aaradhya Saxena, Sundariya angry man (ignores friends)",
   "version": "1.0",
-  "description": "The shield that guards the clipboard of men/women",
+  "description": "The shield that guards the clipboard of men",
   "permissions": [
     "clipboardRead",
     "clipboardWrite",
@@ -11,14 +11,15 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://chat.openai.com/*"
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*"
   ],
   "background": {
     "service_worker": "background/background.js",
     "type": "module"
   },
   "content_scripts": [{
-    "matches": ["*"],
+    "matches": ["https://chatgpt.com/*"],
     "js": ["content/content.js"],
     "run_at": "document_idle"
   }],
