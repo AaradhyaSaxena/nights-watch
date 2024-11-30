@@ -8,10 +8,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+
+///// masks after paste
 function setupClipboardMonitoring() {
   console.log("setupClipboardMonitoring >>> content.js");
   document.addEventListener('paste', async (event) => {
-    event.preventDefault(); 
+    event.preventDefault();  // not working
     try {
       const content = await navigator.clipboard.readText();
       if (content && content.trim()) {
@@ -20,10 +22,8 @@ function setupClipboardMonitoring() {
           action: 'clipboardUpdate', 
           content: content 
         });
-        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-          event.target.value += "content masked"; 
-          console.log("content masked >>> content.js");
-        }
+        event.target.value = "content masked"; 
+        console.log("Event target type >>> content.js:", event.target.value);
       } else {
         console.log("Clipboard is empty");
       }
