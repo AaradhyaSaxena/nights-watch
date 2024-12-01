@@ -26,7 +26,7 @@
   }],
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "ninja-cute.png"
+    "default_icon": "public/ninja-cute.png"
   },
   "web_accessible_resources": [{
     "resources": ["content/*", "config/sites.json"],
