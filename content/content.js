@@ -93,6 +93,21 @@ function preventPaste(e) {
   return false;
 }
 
-document.addEventListener('click', () => {
+// Add visibility change and focus monitoring
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    setupClipboardMonitoring();
+  }
+});
+
+window.addEventListener('focus', () => {
   setupClipboardMonitoring();
+});
+
+// Optional: Monitor tab activation via chrome.runtime messages
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'tabActivated') {
+    setupClipboardMonitoring();
+  }
+  // ... existing message handling ...
 });

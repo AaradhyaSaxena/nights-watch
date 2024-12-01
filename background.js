@@ -34,6 +34,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
       handleTabUpdate(activeInfo.tabId, tab);
     }
   });
+  chrome.tabs.sendMessage(activeInfo.tabId, { action: 'tabActivated' });
 });
 
 
