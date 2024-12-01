@@ -29,6 +29,7 @@ async function returnMaskedContent(originalContent) {
                   1. The structure and format of the text remain consistent.
                   2. Non-PII content is left unaltered.
                   3. Only redact the sensitive information.
+                  4. If there is no PII, return the original content.
                   
                   Example Input: "My email id is harrystyles@gmail.com"
                   Example Output: "My email id is dummyid@example.com" or "My email id is XXXXXXX".
