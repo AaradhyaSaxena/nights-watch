@@ -61,20 +61,27 @@ async function setupClipboardMonitoring() {
         action: 'clipboardUpdate', 
         content: content 
       });
+      document.addEventListener('paste', preventPaste);
+      
       const maskedContent = await returnMaskedContent(content);
       await navigator.clipboard.writeText(maskedContent);
+      document.removeEventListener('paste', preventPaste);
       console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
     } else {
       console.log("Clipboard is empty");
     }
   } catch (error) {
     console.error("Clipboard access error:", error);
-    // Optionally notify the user that they need to focus the page
     chrome.runtime.sendMessage({ 
       action: 'clipboardError', 
       error: 'Please click on the page to enable clipboard access' 
     });
   }
+}
+
+function preventPaste(e) {
+  e.preventDefault();
+  console.log("Paste prevented - content is being processed");
 }
 
 document.addEventListener('click', () => {
