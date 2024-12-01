@@ -80,3 +80,35 @@ async function setupClipboardMonitoring() {
 document.addEventListener('click', () => {
   setupClipboardMonitoring();
 });
+
+// Modify the initial load check
+async function initializeRedactionState() {
+    try {
+        const [settings, config] = await Promise.all([
+            chrome.storage.sync.get(['enabledSites']),
+            fetch(chrome.runtime.getURL('config/sites.json'))
+                .then(response => response.json())
+        ]);
+
+        const currentUrl = window.location.hostname;
+        const isSupportedSite = config.supportedSites.some(site => 
+            currentUrl.includes(site)
+        );
+
+        if (isSupportedSite) {
+            // Enable by default unless explicitly disabled
+            isRedactionEnabled = !settings.enabledSites?.includes(`disabled:${currentUrl}`);
+        } else {
+            // Only enable if explicitly added
+            isRedactionEnabled = settings.enabledSites?.includes(currentUrl) || false;
+        }
+
+        console.log(`Redaction ${isRedactionEnabled ? 'enabled' : 'disabled'} for ${currentUrl}`);
+    } catch (error) {
+        console.error('Error initializing redaction state:', error);
+        isRedactionEnabled = false;
+    }
+}
+
+// Call this when content script loads
+initializeRedactionState();
