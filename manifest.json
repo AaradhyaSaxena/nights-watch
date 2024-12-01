@@ -25,7 +25,8 @@
     "run_at": "document_idle"
   }],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "ninja-cute.png"
   },
   "web_accessible_resources": [{
     "resources": ["content/*", "config/sites.json"],
