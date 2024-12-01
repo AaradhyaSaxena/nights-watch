@@ -56,22 +56,34 @@ async function setupClipboardMonitoring() {
   try {
     const content = await navigator.clipboard.readText();
     if (content && content.trim()) {
+      // Show processing notification
+      chrome.runtime.sendMessage({ 
+        action: 'showNotification', 
+        message: 'Processing clipboard content... Please wait.' 
+      });
+      
       console.log("Clipboard content before paste >>> content.js:", content);
       chrome.runtime.sendMessage({ 
         action: 'clipboardUpdate', 
         content: content 
       });
       
-      // Add paste prevention to both document and window
+      // Add paste prevention
       document.addEventListener('paste', preventPaste, true);
       window.addEventListener('paste', preventPaste, true);
       
       const maskedContent = await returnMaskedContent(content);
       await navigator.clipboard.writeText(maskedContent);
       
-      // Remove paste prevention from both document and window
+      // Remove paste prevention
       document.removeEventListener('paste', preventPaste, true);
       window.removeEventListener('paste', preventPaste, true);
+      
+      // Show completion notification
+      chrome.runtime.sendMessage({ 
+        action: 'showNotification', 
+        message: 'Content processed! You can now paste safely.' 
+      });
       
       console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
     } else {
@@ -89,6 +101,11 @@ async function setupClipboardMonitoring() {
 function preventPaste(e) {
   e.preventDefault();
   e.stopPropagation();
+  // Show processing notification when user attempts to paste
+  chrome.runtime.sendMessage({ 
+    action: 'showNotification', 
+    message: 'Please wait while content is being processed...' 
+  });
   console.log("Paste prevented - content is being processed");
   return false;
 }

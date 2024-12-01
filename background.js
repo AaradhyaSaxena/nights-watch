@@ -49,6 +49,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const content = message.content;
     console.log("content >>> background.js", content);
   }
+  if (message.action === 'showNotification') {
+    chrome.notifications.create({
+      type: 'basic',
+      title: 'Night\'s Watch',
+      message: message.message,
+      priority: 2
+    });
+  }
 });
 
 
