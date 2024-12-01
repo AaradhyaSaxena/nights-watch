@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Night's Watch</title>
+    <style>
+        body {
+            width: 320px;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            background: #212529;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #f8f9fa;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        footer a {
+            color: #6c757d;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="ninja-cute.png" alt="Logo" class="logo">
+            <div class="title">Night's Watch</div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="info-icon">i</div>
+                Enable PII Redaction
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="enableRedaction">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="info-icon">i</div>
+                Add Current Site
+            </div>
+            <button class="button" id="addCurrentSite">Add This Site to Whitelist</button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="info-icon">i</div>
+                Select PII to Redact
+            </div>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="emails">
+                    <label for="emails">Emails</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="phones">
+                    <label for="phones">Phone Numbers</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="names">
+                    <label for="names">Names</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="addresses">
+                    <label for="addresses">Addresses</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="creditCards">
+                    <label for="creditCards">Credit Cards</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="ssn">
+                    <label for="ssn">SSN</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <a href="#" id="review">Review</a>
+        <a href="#" id="feature">Feature Request</a>
+        <a href="#" id="contact">Contact</a>
+    </footer>
+
+    <script src="popup.js"></script>
+</body>
+</html> 

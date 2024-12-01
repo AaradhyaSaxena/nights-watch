@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Nights Watch",
-  "author": "Aaradhya Saxena, Sundariya Tyagi",
+  "author": "Aaradhya Saxena, Saundarya Tyagi",
   "version": "1.0",
-  "description": "The shield that guards the clipboard of men",
+  "description": "The shield that guards the clipboard of men/women",
   "permissions": [
     "clipboardRead",
     "clipboardWrite",
@@ -25,7 +25,8 @@
     "run_at": "document_idle"
   }],
   "action": {
-    "default_popup": "popup/popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "ninja-cute.png"
   },
   "web_accessible_resources": [{
     "resources": ["content/*", "config/sites.json"],

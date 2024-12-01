@@ -29,6 +29,7 @@ async function returnMaskedContent(originalContent) {
                   1. The structure and format of the text remain consistent.
                   2. Non-PII content is left unaltered.
                   3. Only redact the sensitive information.
+                  4. If there is no PII, return the original content.
                   
                   Example Input: "My email id is harrystyles@gmail.com"
                   Example Output: "My email id is dummyid@example.com" or "My email id is XXXXXXX".
@@ -61,15 +62,24 @@ async function setupClipboardMonitoring() {
         action: 'clipboardUpdate', 
         content: content 
       });
+      
+      // Add paste prevention
+      document.addEventListener('paste', preventPaste, true);
+      window.addEventListener('paste', preventPaste, true);
+      
       const maskedContent = await returnMaskedContent(content);
       await navigator.clipboard.writeText(maskedContent);
+      
+      // Remove paste prevention
+      document.removeEventListener('paste', preventPaste, true);
+      window.removeEventListener('paste', preventPaste, true);
+      
       console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
     } else {
       console.log("Clipboard is empty");
     }
   } catch (error) {
     console.error("Clipboard access error:", error);
-    // Optionally notify the user that they need to focus the page
     chrome.runtime.sendMessage({ 
       action: 'clipboardError', 
       error: 'Please click on the page to enable clipboard access' 
@@ -77,6 +87,28 @@ async function setupClipboardMonitoring() {
   }
 }
 
-document.addEventListener('click', () => {
+function preventPaste(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  console.log("Paste prevented - content is being processed");
+  return false;
+}
+
+// Add visibility change and focus monitoring
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    setupClipboardMonitoring();
+  }
+});
+
+window.addEventListener('focus', () => {
   setupClipboardMonitoring();
+});
+
+// Optional: Monitor tab activation via chrome.runtime messages
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'tabActivated') {
+    setupClipboardMonitoring();
+  }
+  // ... existing message handling ...
 });
