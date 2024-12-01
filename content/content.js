@@ -61,11 +61,18 @@ async function setupClipboardMonitoring() {
         action: 'clipboardUpdate', 
         content: content 
       });
-      document.addEventListener('paste', preventPaste);
+      
+      // Add paste prevention to both document and window
+      document.addEventListener('paste', preventPaste, true);
+      window.addEventListener('paste', preventPaste, true);
       
       const maskedContent = await returnMaskedContent(content);
       await navigator.clipboard.writeText(maskedContent);
-      document.removeEventListener('paste', preventPaste);
+      
+      // Remove paste prevention from both document and window
+      document.removeEventListener('paste', preventPaste, true);
+      window.removeEventListener('paste', preventPaste, true);
+      
       console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
     } else {
       console.log("Clipboard is empty");
@@ -81,7 +88,9 @@ async function setupClipboardMonitoring() {
 
 function preventPaste(e) {
   e.preventDefault();
+  e.stopPropagation();
   console.log("Paste prevented - content is being processed");
+  return false;
 }
 
 document.addEventListener('click', () => {
