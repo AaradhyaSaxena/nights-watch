@@ -9,31 +9,35 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function returnMaskedContent(originalContent) {
-    // chrome.runtime.sendMessage({ 
-    //     action: 'geminiCall', 
-    //     content: originalContent 
-    // });
-    // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    //     if (message.action === 'geminiResponse') {
-    //       console.log("content", message.content);
-    //       return message.content;
-    //     }
-    //   });
-    const {available, defaultTemperature, defaultTopK, maxTopK } = await ai.languageModel.capabilities();
-    console.log("available");
-    if (available !== "no") {
-      const session = await ai.languageModel.create({
-        systemPrompt: "You are a helpful assistant specialized in masking PII content like name, phone number, email, address."
-      });
-      const result = await session.prompt(`
-        Analyze the following content and mask it:
-        ${originalContent}
-      `);
-      
-      console.log(result);
-      return result + originalContent;
+    try {
+        const {available} = await ai.languageModel.capabilities();
+        if (available !== "no") {
+            const session = await ai.languageModel.create({
+                systemPrompt: "You are a helpful assistant specialized in masking PII content like name, phone number, email, address."
+            });
+            try {
+                const result = await session.prompt(`
+                    Analyze the following content and mask it:
+                    - If the content is a phone number, mask it with X's.
+                    - If the content is an email, mask it with X's.
+                    - If the content is a name, mask it with X's.
+                    - If the content is an address, mask it with X's.
+                    - If the content is a credit card number, mask it with X's.
+                    - If the content is a social security number, mask it with X's.
+                    Only mask the content, do not add any other text and keep the same format.
+                    ${originalContent}
+                `);
+                return result;
+            } catch (promptError) {
+                console.error("AI processing error:", promptError);
+                return originalContent; // Return original content if AI processing fails
+            }
+        }
+        return originalContent; // Return original content if AI is not available
+    } catch (error) {
+        console.error("AI capability check error:", error);
+        return originalContent; // Return original content if capability check fails
     }
-    return "NOTHING";
 }
 
 
