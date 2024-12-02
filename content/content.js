@@ -1,7 +1,7 @@
 //////////////////////////////////////
 //////// initial setup ////////////////
 //////////////////////////////////////
-console.log("Hello World from Night's Watch >>> content.js");
+debugLog("Hello World from Night's Watch");
 
 const processedHashes = new Set();
 
@@ -23,7 +23,7 @@ window.addEventListener('focus', () => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'startMonitoring') {
-    console.log("startMonitoring >>> content.js");
+    debugLog("startMonitoring");
     setupClipboardMonitoring();
   }
 });
@@ -38,18 +38,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * Prevents paste events while processing
  */
 async function setupClipboardMonitoring() {
-  console.log("setupClipboardMonitoring >>> content.js");
+  debugLog("setupClipboardMonitoring");
   try {
     const content = await navigator.clipboard.readText();
     if (content && content.trim()) {
-      console.log("Clipboard content before paste >>> content.js:", content);
+      debugLog("Clipboard content before paste: ", content);
       //chrome.runtime.sendMessage({ 
       //  action: 'clipboardUpdate', 
       //  content: content 
       //});
       const contentHash = hashContent(content);
       if (processedHashes.has(contentHash)) {
-        console.log("Content already processed, skipping...");
+        debugLog("Content already processed, skipping...");
         return;
       }
       
@@ -65,9 +65,9 @@ async function setupClipboardMonitoring() {
       window.removeEventListener('paste', preventPaste, true);
 
       processedHashes.add(contentHash);
-      console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
+      debugLog("updated clipboard ::: setupClipboardMonitoring ", maskedContent);
     } else {
-      console.log("Clipboard is empty");
+      debugLog("Clipboard is empty");
     }
   } catch (error) {
     console.error("Clipboard access error:", error);    
@@ -105,7 +105,7 @@ function hashContent(content) {
 function preventPaste(e) {
   e.preventDefault();
   e.stopPropagation();
-  console.log("Paste prevented - content is being processed");
+  debugLog("Paste prevented - Data sanitization in progress");
   return false;
 }
 
@@ -151,6 +151,11 @@ async function returnMaskedContentRegex(originalContent) {
 async function returnMaskedContentMock(content) {
   await new Promise(resolve => setTimeout(resolve, 3000));
   return "masked content";
+}
+
+
+function debugLog(...args) {
+  console.log(...args, " ::: content.js");
 }
 
 //////////////////////////////////////
