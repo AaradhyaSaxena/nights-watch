@@ -1,21 +1,29 @@
 ///////////////////////////////////////
-//////// initial setup /////////
+//////// initial setup //////////////
 ///////////////////////////////////////
 
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("Night's Watch extension installed >>> background.js");
+  debugLog("Night's Watch extension installed");
 });
+
 let supportedSites = []; 
 
 function setupTabListener() {
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (changeInfo.status === 'complete' && tab.url) {
-      handleTabUpdate(tabId, tab);
+    try {
+      if (changeInfo.status === 'complete' && tab.url) {
+        handleTabUpdate(tabId, tab);
+      }
+    } catch (error) {
+      if (error.message.includes('Extension context invalidated')) {
+        debugLog('Extension context lost - reloading...');
+        chrome.runtime.reload();
+      }
     }
   });
 }
 
-// Load config and initialize
+// Load config/protected sites and initialize
 fetch(chrome.runtime.getURL('config/sites.json'))
   .then(response => response.json())
   .then(config => {
@@ -29,16 +37,9 @@ fetch(chrome.runtime.getURL('config/sites.json'))
 
 chrome.tabs.onActivated.addListener(activeInfo => {
   chrome.tabs.get(activeInfo.tabId, tab => {
-    const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
-    if (isSupportedSite) {
-      handleTabUpdate(activeInfo.tabId, tab);
-    }
+    handleTabUpdate(activeInfo.tabId, tab);
   });
-  chrome.tabs.sendMessage(activeInfo.tabId, { action: 'tabActivated' });
 });
-
-
-
 
 
 ///////////////////////////////////////
@@ -47,11 +48,24 @@ chrome.tabs.onActivated.addListener(activeInfo => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'clipboardUpdate') {
-    const content = message.content;
-    console.log("content >>> background.js", content);
+    try {
+      // Add check for tab focus
+      chrome.tabs.get(sender.tab.id, (tab) => {
+        if (!chrome.runtime.lastError && tab.active) {
+          const content = message.content;
+          debugLog("Clipboard Content: ", content);
+        }
+      });
+    } catch (error) {
+      console.error('Clipboard operation failed:', error);
+      chrome.tabs.sendMessage(sender.tab.id, { 
+        action: 'clipboardError',
+        error: error.message 
+      });
+    }
   }
+  return true; // Keep message channel open for async response
 });
-
 
 ///////////////////////////////////////
 //////////// core methods /////////////////
@@ -60,7 +74,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function handleTabUpdate(tabId, tab) {
   const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
   if (isSupportedSite) {
-    debugLog("Detected AI chat tab - Night's Watch is active >>> background.js");
+    debugLog("Detected AI chat tab");
     chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
   }
 }
@@ -69,6 +83,6 @@ function handleTabUpdate(tabId, tab) {
 ///////////////////// utils //////////////////////  
 
 function debugLog(...args) {
-  console.log(...args);
+  console.log(...args, " ::: background.js");
 }
 

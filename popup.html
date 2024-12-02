@@ -102,16 +102,20 @@
             transform: translateX(26px);
         }
 
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+        .radio-group {
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
 
-        .checkbox-item {
+        .radio-item {
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .radio-item input[type="radio"] {
+            margin: 0;
         }
 
         .button {
@@ -139,6 +143,31 @@
             color: #6c757d;
             text-decoration: none;
             margin: 0 8px;
+        }
+
+        .persona-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .persona-button {
+            background: #2f3136;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .persona-button.active {
+            background: #5865f2;
+        }
+
+        .persona-button:hover {
+            background: #404249;
         }
     </style>
 </head>
@@ -171,33 +200,13 @@
         <div class="section">
             <div class="section-title">
                 <div class="info-icon">i</div>
-                Select PII to Redact
+                Please select your persona
             </div>
-            <div class="checkbox-group">
-                <div class="checkbox-item">
-                    <input type="checkbox" id="emails">
-                    <label for="emails">Emails</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="phones">
-                    <label for="phones">Phone Numbers</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="names">
-                    <label for="names">Names</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="addresses">
-                    <label for="addresses">Addresses</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="creditCards">
-                    <label for="creditCards">Credit Cards</label>
-                </div>
-                <div class="checkbox-item">
-                    <input type="checkbox" id="ssn">
-                    <label for="ssn">SSN</label>
-                </div>
+            <div class="persona-buttons">
+                <button id="engineer" class="persona-button">Software Engineer</button>
+                <button id="pm" class="persona-button">Product Manager</button>
+                <button id="consultant" class="persona-button">Consultant</button>
+                <button id="analyst" class="persona-button">Financial Analyst</button>
             </div>
         </div>
     </div>
