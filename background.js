@@ -6,12 +6,6 @@ chrome.runtime.onInstalled.addListener(() => {
     console.log("Night's Watch extension installed >>> background.js");
 });
 
-// Add error handling for context invalidation
-chrome.runtime.onSuspend.addListener(() => {
-  console.log("Extension context being suspended");
-  // Cleanup code here
-});
-
 let supportedSites = []; 
 
 function setupTabListener() {
@@ -48,7 +42,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
       handleTabUpdate(activeInfo.tabId, tab);
     }
   });
-  chrome.tabs.sendMessage(activeInfo.tabId, { action: 'tabActivated' });
+  // chrome.tabs.sendMessage(activeInfo.tabId, { action: 'tabActivated' });
 });
 
 
@@ -82,32 +76,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   return true; // Keep message channel open for async response
 });
-
-// Add new helper function
-function handleClipboardOperation(content) {
-  // Implement retry logic
-  const maxRetries = 3;
-  let attempts = 0;
-
-  const tryOperation = () => {
-    attempts++;
-    try {
-      // Your clipboard operation here
-      return true;
-    } catch (error) {
-      if (attempts < maxRetries && 
-          (error.message.includes('Extension context invalidated') ||
-           error.message.includes('Document is not focused'))) {
-        setTimeout(tryOperation, 1000); // Retry after 1 second
-      } else {
-        throw error;
-      }
-    }
-  };
-
-  return tryOperation();
-}
-
 
 ///////////////////////////////////////
 //////////// core methods /////////////////

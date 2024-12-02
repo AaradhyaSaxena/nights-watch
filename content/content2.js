@@ -1,5 +1,6 @@
 console.log("Hello World from Night's Watch >>> content.js");
 
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'startMonitoring') {
     console.log("startMonitoring >>> content.js");
@@ -7,19 +8,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-const processedHashes = new Set();
-
-function hashContent(content) {
-  let hash = 0;
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-}
-
-async function returnMaskedContent2(originalContent) {
+async function returnMaskedContent(originalContent) {
     try {
         const {available} = await ai.languageModel.capabilities();
         if (available !== "no") {
@@ -62,46 +51,6 @@ async function returnMaskedContent2(originalContent) {
     }
 }
 
-async function returnMaskedContent(originalContent) {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  let maskedContent = originalContent;
-  
-  maskedContent = maskedContent.replace(
-      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, 
-      'dummyid@example.com'
-  );
-  
-  maskedContent = maskedContent.replace(
-      /(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/g,
-      'XXX-XXX-XXXX'
-  );
-  
-  maskedContent = maskedContent.replace(
-      /\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}/g,
-      'XXXX-XXXX-XXXX-XXXX'
-  );
-  
-  maskedContent = maskedContent.replace(
-      /\d{3}-?\d{2}-?\d{4}/g,
-      'XXX-XX-XXXX'
-  );
-  
-  const commonNames = ['John', 'Jane', 'Smith', 'Johnson', 'Williams'];
-  commonNames.forEach(name => {
-      const nameRegex = new RegExp(name, 'gi');
-      maskedContent = maskedContent.replace(nameRegex, 'Anonymous');
-  });
-
-  maskedContent = maskedContent.replace(
-      /\d+\s+[a-zA-Z\s,]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|lane|ln|drive|dr)\s*,?\s*[a-zA-Z\s]+,\s*[A-Z]{2}\s*\d{5}/gi,
-      'Redacted Address'
-  );
-
-  console.log('Masked content:', maskedContent);
-  return maskedContent;
-}
-
 
 async function setupClipboardMonitoring() {
   console.log("setupClipboardMonitoring >>> content.js");
@@ -109,15 +58,10 @@ async function setupClipboardMonitoring() {
     const content = await navigator.clipboard.readText();
     if (content && content.trim()) {
       console.log("Clipboard content before paste >>> content.js:", content);
-      //chrome.runtime.sendMessage({ 
-      //  action: 'clipboardUpdate', 
-      //  content: content 
-      //});
-      const contentHash = hashContent(content);
-      if (processedHashes.has(contentHash)) {
-        console.log("Content already processed, skipping...");
-        return;
-      }
+      chrome.runtime.sendMessage({ 
+        action: 'clipboardUpdate', 
+        content: content 
+      });
       
       // Add paste prevention
       document.addEventListener('paste', preventPaste, true);
@@ -129,17 +73,16 @@ async function setupClipboardMonitoring() {
       // Remove paste prevention
       document.removeEventListener('paste', preventPaste, true);
       window.removeEventListener('paste', preventPaste, true);
-
-      processedHashes.add(contentHash);
+      
       console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
     } else {
       console.log("Clipboard is empty");
     }
   } catch (error) {
-    console.error("Clipboard access error:", error);    
+    console.error("Clipboard access error:", error);
     chrome.runtime.sendMessage({ 
       action: 'clipboardError', 
-      error: errorMessage 
+      error: 'Please click on the page to enable clipboard access' 
     });
   }
 }
@@ -150,15 +93,8 @@ function preventPaste(e) {
   console.log("Paste prevented - content is being processed");
   return false;
 }
-// Add visibility change and focus monitoring
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && isMonitoring) {
-    setupClipboardMonitoring();
-  } else {
-    updateStatusOverlay(false);
-  }
-});
 
+// Add visibility change and focus monitoring
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     setupClipboardMonitoring();
