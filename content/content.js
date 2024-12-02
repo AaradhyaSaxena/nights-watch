@@ -147,8 +147,9 @@ async function returnMaskedContentRegex(originalContent) {
   return maskedContent;
 }
 
-function returnMaskedContentMock(content) {
-  // await new Promise(resolve => setTimeout(resolve, 1000));
+//// 3 second delay
+async function returnMaskedContentMock(content) {
+  await new Promise(resolve => setTimeout(resolve, 3000));
   return "masked content";
 }
 
