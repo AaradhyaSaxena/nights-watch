@@ -22,7 +22,12 @@
   },
   "content_scripts": [{
     "matches": ["https://chatgpt.com/*"],
-    "js": ["content/content.js"],
+    "js": [
+      "content/ClipboardManager.js",
+      "content/ContentMasker.js",
+      "content/ClipboardMonitor.js",
+      "content/content.js"
+    ],
     "type": "module",
     "run_at": "document_idle"
   }],
