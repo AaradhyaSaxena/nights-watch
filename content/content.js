@@ -1,10 +1,6 @@
 //////////////////////////////////////
 //////// initial setup ////////////////
 //////////////////////////////////////
-
-import { hashContent, preventPaste, returnMaskedContentRegex, returnMockedMaskingContent } from './utils.js';
-import { returnMaskedContentAI } from './core.js';
-
 console.log("Hello World from Night's Watch >>> content.js");
 
 const processedHashes = new Set();
@@ -61,7 +57,7 @@ async function setupClipboardMonitoring() {
       document.addEventListener('paste', preventPaste, true);
       window.addEventListener('paste', preventPaste, true);
       
-      const maskedContent = await returnMaskedContentRegex(content);
+      const maskedContent = await returnMaskedContentMock(content);
       await navigator.clipboard.writeText(maskedContent);
       
       // Remove paste prevention
@@ -91,7 +87,7 @@ async function setupClipboardMonitoring() {
  * @param {string} content - The content to hash
  * @return {number} - 32-bit integer hash
  */
-export function hashContent(content) {
+function hashContent(content) {
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
@@ -106,7 +102,7 @@ export function hashContent(content) {
 * @param {Event} e - Paste event
 * @return {boolean} - Always returns false to prevent default behavior
 */
-export function preventPaste(e) {
+function preventPaste(e) {
   e.preventDefault();
   e.stopPropagation();
   console.log("Paste prevented - content is being processed");
@@ -118,7 +114,7 @@ export function preventPaste(e) {
 * @param {string} originalContent - Content to be masked
 * @return {string} - Masked content with PII replaced
 */
-export async function returnMaskedContentRegex(originalContent) {
+async function returnMaskedContentRegex(originalContent) {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   let maskedContent = originalContent;
@@ -151,8 +147,8 @@ export async function returnMaskedContentRegex(originalContent) {
   return maskedContent;
 }
 
-export async function returnMockedMaskingContent(content) {
-  await new Promise(resolve => setTimeout(resolve, 1000));
+function returnMaskedContentMock(content) {
+  // await new Promise(resolve => setTimeout(resolve, 1000));
   return "masked content";
 }
 
@@ -167,7 +163,7 @@ export async function returnMockedMaskingContent(content) {
  * @param {string} originalContent - Content to be masked
  * @return {string} - Masked content or original content if AI processing fails
  */
-export async function returnMaskedContentAI(originalContent) {
+async function returnMaskedContentAI(originalContent) {
   try {
       const {available} = await ai.languageModel.capabilities();
       if (available !== "no") {
