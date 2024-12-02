@@ -1,14 +1,11 @@
-console.log("Hello World from Night's Watch >>> content.js");
 
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'startMonitoring') {
-    console.log("startMonitoring >>> content.js");
-    setupClipboardMonitoring();
-  }
-});
-
-async function returnMaskedContent(originalContent) {
+/**
+ * Advanced PII masking using AI language model
+ * @param {string} originalContent - Content to be masked
+ * @return {string} - Masked content or original content if AI processing fails
+ */
+export async function returnMaskedContentAI(originalContent) {
     try {
         const {available} = await ai.languageModel.capabilities();
         if (available !== "no") {
@@ -50,57 +47,5 @@ async function returnMaskedContent(originalContent) {
         return originalContent; // Return original content if capability check fails
     }
 }
-
-
-async function setupClipboardMonitoring() {
-  console.log("setupClipboardMonitoring >>> content.js");
-  try {
-    const content = await navigator.clipboard.readText();
-    if (content && content.trim()) {
-      console.log("Clipboard content before paste >>> content.js:", content);
-      chrome.runtime.sendMessage({ 
-        action: 'clipboardUpdate', 
-        content: content 
-      });
-      
-      // Add paste prevention
-      document.addEventListener('paste', preventPaste, true);
-      window.addEventListener('paste', preventPaste, true);
-      
-      const maskedContent = await returnMaskedContent(content);
-      await navigator.clipboard.writeText(maskedContent);
-      
-      // Remove paste prevention
-      document.removeEventListener('paste', preventPaste, true);
-      window.removeEventListener('paste', preventPaste, true);
-      
-      console.log("updated clipboard >>> setupClipboardMonitoring", maskedContent);
-    } else {
-      console.log("Clipboard is empty");
-    }
-  } catch (error) {
-    console.error("Clipboard access error:", error);
-    chrome.runtime.sendMessage({ 
-      action: 'clipboardError', 
-      error: 'Please click on the page to enable clipboard access' 
-    });
-  }
-}
-
-function preventPaste(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  console.log("Paste prevented - content is being processed");
-  return false;
-}
-
-// Add visibility change and focus monitoring
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    setupClipboardMonitoring();
-  }
-});
-
-window.addEventListener('focus', () => {
-  setupClipboardMonitoring();
-});
+  
+  

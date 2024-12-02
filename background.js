@@ -1,9 +1,9 @@
 ///////////////////////////////////////
-//////// initial setup /////////
+//////// initial setup //////////////
 ///////////////////////////////////////
 
 chrome.runtime.onInstalled.addListener(() => {
-    console.log("Night's Watch extension installed >>> background.js");
+  debugLog("Night's Watch extension installed");
 });
 
 let supportedSites = []; 
@@ -16,14 +16,14 @@ function setupTabListener() {
       }
     } catch (error) {
       if (error.message.includes('Extension context invalidated')) {
-        console.log('Extension context lost - reloading...');
+        debugLog('Extension context lost - reloading...');
         chrome.runtime.reload();
       }
     }
   });
 }
 
-// Load config and initialize
+// Load config/protected sites and initialize
 fetch(chrome.runtime.getURL('config/sites.json'))
   .then(response => response.json())
   .then(config => {
@@ -39,14 +39,10 @@ chrome.tabs.onActivated.addListener(activeInfo => {
   chrome.tabs.get(activeInfo.tabId, tab => {
     const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
     if (isSupportedSite) {
-      handleTabUpdate(activeInfo.tabId, tab);
+      handleTabUpdate();
     }
   });
-  // chrome.tabs.sendMessage(activeInfo.tabId, { action: 'tabActivated' });
 });
-
-
-
 
 
 ///////////////////////////////////////
@@ -56,18 +52,15 @@ chrome.tabs.onActivated.addListener(activeInfo => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'clipboardUpdate') {
     try {
-      const content = message.content;
-      console.log("content >>> background.js", content);
       // Add check for tab focus
       chrome.tabs.get(sender.tab.id, (tab) => {
         if (!chrome.runtime.lastError && tab.active) {
-          // Process clipboard only if tab is active
-          handleClipboardOperation(content);
+          const content = message.content;
+          debugLog("Clipboard Content: ", content);
         }
       });
     } catch (error) {
       console.error('Clipboard operation failed:', error);
-      // Notify content script of failure
       chrome.tabs.sendMessage(sender.tab.id, { 
         action: 'clipboardError',
         error: error.message 
@@ -84,7 +77,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function handleTabUpdate(tabId, tab) {
   const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
   if (isSupportedSite) {
-    debugLog("Detected AI chat tab - Night's Watch is active >>> background.js");
+    debugLog("Detected AI chat tab");
     chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
   }
 }
@@ -93,6 +86,6 @@ function handleTabUpdate(tabId, tab) {
 ///////////////////// utils //////////////////////  
 
 function debugLog(...args) {
-  console.log(...args);
+  console.log(...args, " ::: background.js");
 }
 
