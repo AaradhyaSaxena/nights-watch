@@ -62,3 +62,7 @@ export async function returnMaskedContentRegex(originalContent) {
     console.log('Masked content:', maskedContent);
     return maskedContent;
 }
+
+export function returnMockedMaskingContent(content) {
+    return "masked content";
+}

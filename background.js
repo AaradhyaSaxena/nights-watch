@@ -37,10 +37,7 @@ fetch(chrome.runtime.getURL('config/sites.json'))
 
 chrome.tabs.onActivated.addListener(activeInfo => {
   chrome.tabs.get(activeInfo.tabId, tab => {
-    const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
-    if (isSupportedSite) {
-      handleTabUpdate();
-    }
+    handleTabUpdate(activeInfo.tabId, tab);
   });
 });
 

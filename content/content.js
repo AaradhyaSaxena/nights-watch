@@ -2,7 +2,7 @@
 //////// initial setup ////////////////
 //////////////////////////////////////
 
-import { hashContent, preventPaste, returnMaskedContentRegex } from './utils.js';
+import { hashContent, preventPaste, returnMaskedContentRegex, returnMockedMaskingContent } from './utils.js';
 import { returnMaskedContentAI } from './core.js';
 
 console.log("Hello World from Night's Watch >>> content.js");
@@ -61,7 +61,7 @@ async function setupClipboardMonitoring() {
       document.addEventListener('paste', preventPaste, true);
       window.addEventListener('paste', preventPaste, true);
       
-      const maskedContent = await returnMaskedContentRegex(content);
+      const maskedContent = await returnMockedMaskingContent(content);
       await navigator.clipboard.writeText(maskedContent);
       
       // Remove paste prevention
@@ -77,7 +77,7 @@ async function setupClipboardMonitoring() {
     console.error("Clipboard access error:", error);    
     chrome.runtime.sendMessage({ 
       action: 'clipboardError', 
-      error: errorMessage 
+      error: error 
     });
   }
 }
