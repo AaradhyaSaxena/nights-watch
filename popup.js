@@ -3,35 +3,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const currentUrl = new URL(tab.url).hostname;
 
-    // Load saved settings
-    const settings = await chrome.storage.sync.get({
-        enabledSites: [],
-        piiTypes: {
-            emails: true,
-            phones: true,
-            names: true,
-            addresses: true,
-            creditCards: true,
-            ssn: true
-        }
-    });
+    // Load supported sites from sites.json
+    const supportedSitesResponse = await fetch('config/sites.json');
+    const supportedSites = await supportedSitesResponse.json();
+
+    // Load user-added sites from storage
+    //const isPreConfigured = supportedSites.supportedSites.includes(currentUrl);
+    const userSettings = await chrome.storage.sync.get({ addedSites: [] });
+    const allSupportedSites = [...supportedSites.supportedSites, ...userSettings.addedSites];
+
+    const isPreConfigured = allSupportedSites.includes(currentUrl);
+
+    // Setup "Add Current Site" button
+    const addSiteBtn = document.getElementById('addCurrentSite');
+    if (isPreConfigured) {
+        addSiteBtn.textContent = 'Site Already Added';
+        addSiteBtn.disabled = true;
+    } else {
+        addSiteBtn.textContent = 'Add This Site';
+        addSiteBtn.disabled = false;
+        addSiteBtn.addEventListener('click', async () => {
+            userSettings.addedSites.push(currentUrl);
+            await chrome.storage.sync.set({ addedSites: userSettings.addedSites });
+            addSiteBtn.textContent = 'Site Already Added';
+            addSiteBtn.disabled = true;
+        });
+    }
 
     // Setup main toggle
     const enableRedaction = document.getElementById('enableRedaction');
-    enableRedaction.checked = settings.enabledSites.includes(currentUrl);
-    enableRedaction.addEventListener('change', async (e) => {
-        const enabledSites = settings.enabledSites;
-        if (e.target.checked) {
-            if (!enabledSites.includes(currentUrl)) {
-                enabledSites.push(currentUrl);
-            }
-        } else {
-            const index = enabledSites.indexOf(currentUrl);
-            if (index > -1) {
-                enabledSites.splice(index, 1);
-            }
-        }
-        await chrome.storage.sync.set({ enabledSites });
+    enableRedaction.checked = isPreConfigured;
+    enableRedaction.addEventListener('change', (e) => {
         // Notify content script of the change
         chrome.tabs.sendMessage(tab.id, { 
             action: 'updateRedactionStatus', 
@@ -39,48 +41,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Setup "Add Current Site" button
-    const addSiteBtn = document.getElementById('addCurrentSite');
-    addSiteBtn.textContent = settings.enabledSites.includes(currentUrl) 
-        ? 'Site Already Added' 
-        : 'Add This Site';
-    addSiteBtn.disabled = settings.enabledSites.includes(currentUrl);
-    addSiteBtn.addEventListener('click', async () => {
-        if (!settings.enabledSites.includes(currentUrl)) {
-            settings.enabledSites.push(currentUrl);
-            await chrome.storage.sync.set({ enabledSites: settings.enabledSites });
-            addSiteBtn.textContent = 'Site Already Added';
-            addSiteBtn.disabled = true;
-            enableRedaction.checked = true;
-        }
+    // Load saved settings for PII types
+    const settings = await chrome.storage.sync.get({
+        persona: 'engineer' // default value
     });
 
-    // Setup PII type checkboxes
-    const piiTypes = ['emails', 'phones', 'names', 'addresses', 'creditCards', 'ssn'];
-    piiTypes.forEach(type => {
-        const checkbox = document.getElementById(type);
-        checkbox.checked = settings.piiTypes[type];
-        checkbox.addEventListener('change', async (e) => {
-            settings.piiTypes[type] = e.target.checked;
-            await chrome.storage.sync.set({ piiTypes: settings.piiTypes });
+    const personas = ['engineer', 'pm', 'consultant', 'analyst'];
+    personas.forEach(persona => {
+        const button = document.getElementById(persona);
+        if (settings.persona === persona) {
+            button.classList.add('active');
+        }
+        button.addEventListener('click', async () => {
+            // Remove active class from all buttons
+            personas.forEach(p => document.getElementById(p).classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            await chrome.storage.sync.set({ persona: persona });
             // Notify content script of the change
             chrome.tabs.sendMessage(tab.id, {
-                action: 'updatePiiTypes',
-                piiTypes: settings.piiTypes
+                action: 'updatePersona',
+                persona: persona
             });
         });
     });
 
     // Setup footer links
     document.getElementById('review').addEventListener('click', () => {
-        chrome.tabs.create({ url: 'https://chrome.google.com/webstore/detail/[your-extension-id]' });
+        chrome.tabs.create({ url: 'https://aaradhyasaxena.github.io/nightswatch-web' });
     });
 
     document.getElementById('feature').addEventListener('click', () => {
-        chrome.tabs.create({ url: 'https://github.com/[your-repo]/issues' });
+        chrome.tabs.create({ url: 'https://docs.google.com/forms/d/1Q4NZt-b9wsBuw6OGPEZyBmVf6hHO2NJ0ZrVy_OnxYik/prefill' });
     });
 
     document.getElementById('contact').addEventListener('click', () => {
-        chrome.tabs.create({ url: 'mailto:your-email@example.com' });
+        chrome.tabs.create({ url: 'mailto:yum3.ai@gmail.com' });
     });
 }); 
