@@ -64,6 +64,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
     }
   }
+
+  if (message.action === 'updatePersona') {
+    // Forward persona update to content script
+    chrome.tabs.sendMessage(sender.tab.id, {
+      action: 'updatePersona',
+      persona: message.persona
+    });
+  }
+
   return true; // Keep message channel open for async response
 });
 

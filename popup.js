@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const personas = ['engineer', 'pm', 'consultant', 'analyst', 'other'];
+    let selectedPersona = settings.persona;
+
     personas.forEach(persona => {
         const button = document.getElementById(persona);
         if (settings.persona === persona) {
@@ -57,7 +59,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             personas.forEach(p => document.getElementById(p).classList.remove('active'));
             // Add active class to clicked button
             button.classList.add('active');
-            
             // Only show input field if "Other" is clicked
             if (persona === 'other') {
                 document.getElementById('otherPersonaInput').style.display = 'block';
