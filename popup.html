@@ -155,19 +155,33 @@
             background: #2f3136;
             color: #fff;
             border: none;
-            padding: 8px 16px;
-            border-radius: 16px;
+            padding: 6px 12px;
+            border-radius: 12px;
             cursor: pointer;
             text-align: center;
             transition: background-color 0.2s;
+            font-size: 14px;
         }
 
         .persona-button.active {
-            background: #5865f2;
+            background: #5865f2 !important;
         }
 
         .persona-button:hover {
             background: #404249;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #otherPersonaInput {
+            margin-top: 8px;
         }
     </style>
 </head>
@@ -192,9 +206,8 @@
         <div class="section">
             <div class="section-title">
                 <div class="info-icon">i</div>
-                Add Current Site
+                <button class="button" id="addCurrentSite">Add This Site</button>
             </div>
-            <button class="button" id="addCurrentSite">Add This Site to Whitelist</button>
         </div>
 
         <div class="section">
@@ -207,6 +220,11 @@
                 <button id="pm" class="persona-button">Product Manager</button>
                 <button id="consultant" class="persona-button">Consultant</button>
                 <button id="analyst" class="persona-button">Financial Analyst</button>
+                <button id="other" class="persona-button">Other</button>
+            </div>
+            <div id="otherPersonaInput" style="display: none; margin-top: 8px;">
+                <input type="text" id="customPersona" class="custom-input" placeholder="Enter your use case">
+                <button id="submitCustomPersona" class="button">Submit</button>
             </div>
         </div>
     </div>

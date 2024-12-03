@@ -46,25 +46,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         persona: 'engineer' // default value
     });
 
-    const personas = ['engineer', 'pm', 'consultant', 'analyst'];
+    const personas = ['engineer', 'pm', 'consultant', 'analyst', 'other'];
+    let selectedPersona = settings.persona;
+
     personas.forEach(persona => {
         const button = document.getElementById(persona);
         if (settings.persona === persona) {
             button.classList.add('active');
         }
-        button.addEventListener('click', async () => {
+        button.addEventListener('click', () => {
             // Remove active class from all buttons
             personas.forEach(p => document.getElementById(p).classList.remove('active'));
             // Add active class to clicked button
             button.classList.add('active');
-            
-            await chrome.storage.sync.set({ persona: persona });
-            // Notify content script of the change
+            // Only show input field if "Other" is clicked
+            if (persona === 'other') {
+                document.getElementById('otherPersonaInput').style.display = 'block';
+            } else {
+                document.getElementById('otherPersonaInput').style.display = 'none';
+            }
+        });
+    });
+
+    // Setup the submit button for custom persona
+    document.getElementById('submitCustomPersona').addEventListener('click', async () => {
+        const customPersona = document.getElementById('customPersona').value;
+        if (customPersona.trim()) {
+            await chrome.storage.sync.set({ persona: customPersona });
             chrome.tabs.sendMessage(tab.id, {
                 action: 'updatePersona',
-                persona: persona
+                persona: customPersona
             });
-        });
+            document.getElementById('otherPersonaInput').style.display = 'none';
+        }
     });
 
     // Setup footer links
