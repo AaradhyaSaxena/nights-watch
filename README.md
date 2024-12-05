@@ -3,6 +3,8 @@
 ## Overview
 Night's Watch is a Chrome extension that monitors and masks sensitive information (PII) in clipboard content on supported AI chat websites.
 
+As both corporations and individuals increasingly adopt Gen-AI tools like ChatGPT, Gemini, and Claude, a critical challenge emerges: preventing accidental exposure of sensitive data through clipboard operations. Employees may inadvertently paste confidential information, PII, or trade secrets into these AI platforms, creating significant compliance and security risks for organisations. Similarly, in personal usage, users may unknowingly share private information—such as financial details, health records, or personal messages—while interacting with these tools. This raises serious concerns around privacy, data security, and misuse of personal information, highlighting the need for robust safeguards to ensure sensitive data remains protected in all contexts.
+
 ## Core Components
 
 ### Background Script (background.js)
