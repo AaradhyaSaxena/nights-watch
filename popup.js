@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load supported sites from storage
     const supportedSites = await chrome.storage.sync.get({ addedSites: [] });
 
-    const isPreConfigured = supportedSites.includes(currentUrl);
+    const isPreConfigured = await supportedSites.addedSites.includes(currentUrl);
 
     // Setup main toggle
     const enableRedaction = document.getElementById('enableRedaction');

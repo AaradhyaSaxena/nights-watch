@@ -20,7 +20,12 @@ chrome.runtime.onInstalled.addListener(async () => {
   }
 });
 
-let supportedSites = chrome.storage.sync.get({ addedSites: [] }).then(result => result.addedSites);
+let supportedSites = [];
+// Initialize supportedSites
+chrome.storage.sync.get({ addedSites: [] }).then(result => {
+  supportedSites = result.addedSites;
+});
+
 setupTabListener();
 
 function setupTabListener() {
@@ -78,8 +83,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //////////// core methods /////////////////
 ///////////////////////////////////////
 
-function handleTabUpdate(tabId, tab) {
-  const isSupportedSite = supportedSites.some(site => tab.url.includes(site));
+async function handleTabUpdate(tabId, tab) {
+  const result = await chrome.storage.sync.get({ addedSites: [] });
+  const isSupportedSite = result.addedSites.some(site => tab.url.includes(site));
   if (isSupportedSite) {
     debugLog("Detected AI chat tab");
     chrome.tabs.sendMessage(tabId, { action: 'startMonitoring' });
