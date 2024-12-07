@@ -2,16 +2,31 @@
 //////// initial setup //////////////
 ///////////////////////////////////////
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   debugLog("Night's Watch extension installed");
+  
+  try {
+    // Load initial sites from config file
+    const response = await fetch(chrome.runtime.getURL('config/sites.json'));
+    const config = await response.json();
+    
+    // Initialize storage with default sites as addedSites
+    await chrome.storage.sync.set({ 
+      addedSites: config.supportedSites
+    });
+    
+  } catch (error) {
+    console.error('Error initializing extension:', error);
+  }
 });
 
-let supportedSites = []; 
+let supportedSites = chrome.storage.sync.get({ addedSites: [] }).then(result => result.addedSites);
+setupTabListener();
 
 function setupTabListener() {
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     try {
-      if (changeInfo.status === 'complete' && tab.url) {
+      if (changeInfo.status === 'loading' && tab.url) {
         handleTabUpdate(tabId, tab);
       }
     } catch (error) {
@@ -22,14 +37,6 @@ function setupTabListener() {
     }
   });
 }
-
-// Load config/protected sites and initialize
-fetch(chrome.runtime.getURL('config/sites.json'))
-  .then(response => response.json())
-  .then(config => {
-    supportedSites = config.supportedSites;
-    setupTabListener();
-  });
 
 ///////////////////////////////////////
 ////////////// tab update /////////////  

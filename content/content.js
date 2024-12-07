@@ -3,7 +3,7 @@
 //////////////////////////////////////
 debugLog("Hello World from Night's Watch");
 
-const processedHashes = new Set();
+const processedHashes = new Map();
 
 //////////////////////////////////////
 //////// Event Listeners /////////////
@@ -50,6 +50,7 @@ async function setupClipboardMonitoring() {
       const contentHash = hashContent(content);
       if (processedHashes.has(contentHash)) {
         debugLog("Content already processed, skipping...");
+        navigator.clipboard.writeText(processedHashes.get(contentHash).maskedContent);
         return;
       }
       
@@ -64,7 +65,11 @@ async function setupClipboardMonitoring() {
       document.removeEventListener('paste', preventPaste, true);
       window.removeEventListener('paste', preventPaste, true);
 
-      processedHashes.add(contentHash);
+      processedHashes.set(contentHash, {
+        maskedContent: maskedContent,
+        timestamp: Date.now(),
+        length: content.length
+      });
       debugLog("updated clipboard ::: setupClipboardMonitoring ", maskedContent);
     } else {
       debugLog("Clipboard is empty");

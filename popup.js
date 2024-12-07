@@ -3,47 +3,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const currentUrl = new URL(tab.url).hostname;
 
-    // Load supported sites from sites.json
-    const supportedSitesResponse = await fetch('config/sites.json');
-    const supportedSites = await supportedSitesResponse.json();
+    // Load supported sites from storage
+    const supportedSites = await chrome.storage.sync.get({ addedSites: [] });
 
-    // Load user-added sites from storage
-    //const isPreConfigured = supportedSites.supportedSites.includes(currentUrl);
-    const userSettings = await chrome.storage.sync.get({ addedSites: [] });
-    const allSupportedSites = [...supportedSites.supportedSites, ...userSettings.addedSites];
-
-    const isPreConfigured = allSupportedSites.includes(currentUrl);
-
-    // Setup "Add Current Site" button
-    const addSiteBtn = document.getElementById('addCurrentSite');
-    if (isPreConfigured) {
-        addSiteBtn.textContent = 'Site Already Added';
-        addSiteBtn.disabled = true;
-    } else {
-        addSiteBtn.textContent = 'Add This Site';
-        addSiteBtn.disabled = false;
-        addSiteBtn.addEventListener('click', async () => {
-            userSettings.addedSites.push(currentUrl);
-            await chrome.storage.sync.set({ addedSites: userSettings.addedSites });
-            addSiteBtn.textContent = 'Site Already Added';
-            addSiteBtn.disabled = true;
-        });
-    }
+    const isPreConfigured = supportedSites.includes(currentUrl);
 
     // Setup main toggle
     const enableRedaction = document.getElementById('enableRedaction');
     enableRedaction.checked = isPreConfigured;
-    enableRedaction.addEventListener('change', (e) => {
-        // Notify content script of the change
-        chrome.tabs.sendMessage(tab.id, { 
-            action: 'updateRedactionStatus', 
-            enabled: e.target.checked 
-        });
+    enableRedaction.addEventListener('change', async (e) => {
+        if (e.target.checked) {
+            // Add site to user's added sites if not already present
+            if (!supportedSites.addedSites.includes(currentUrl)) {
+                supportedSites.addedSites.push(currentUrl);
+                await chrome.storage.sync.set({ addedSites: supportedSites.addedSites });
+            }
+        } else {
+            // Remove site from user's added sites
+            supportedSites.addedSites = supportedSites.addedSites.filter(site => site !== currentUrl);
+            await chrome.storage.sync.set({ addedSites: supportedSites.addedSites });
+        }
     });
 
     // Load saved settings for PII types
     const settings = await chrome.storage.sync.get({
-        persona: 'engineer' // default value
+        persona: 'analyst' // default value
     });
 
     const personas = ['engineer', 'pm', 'consultant', 'analyst', 'other'];
@@ -51,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     personas.forEach(persona => {
         const button = document.getElementById(persona);
-        if (settings.persona === persona) {
+        if (selectedPersona === persona) {
             button.classList.add('active');
         }
         button.addEventListener('click', () => {
@@ -77,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 action: 'updatePersona',
                 persona: customPersona
             });
+            console.log("Custom persona set to: ", customPersona);
             document.getElementById('otherPersonaInput').style.display = 'none';
         }
     });
