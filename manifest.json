@@ -26,9 +26,20 @@
     "type": "module",
     "run_at": "document_idle"
   }],
+  "icons": {
+    "16": "public/ninja-cute.png",
+    "32": "public/ninja-cute.png",
+    "48": "public/ninja-cute.png",
+    "128": "public/ninja-cute.png"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "public/ninja-cute.png"
+    "default_icon": {
+      "16": "public/ninja-cute.png",
+      "32": "public/ninja-cute.png",
+      "48": "public/ninja-cute.png",
+      "128": "public/ninja-cute.png"
+    }
   },
   "web_accessible_resources": [{
     "resources": ["content/*", "config/sites.json"],
